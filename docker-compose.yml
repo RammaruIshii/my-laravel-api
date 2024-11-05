@@ -1,0 +1,45 @@
+# version: "3.9"
+
+services:
+  app:
+    build:
+    # ビルドコンテキスト（ビルドを実行する場所）
+      context: .
+      # ビルドするDockerfileまでのパス
+      dockerfile: ./docker/app/Dockerfile
+    volumes:
+      - ./src/:/app
+
+  web:
+    build:
+      context: .
+      dockerfile: ./docker/web/Dockerfile
+    ports:
+      - 8081:80
+    volumes:
+      - ./src/:/app
+    depends_on:
+      - app
+
+  db:
+    build:
+      context: .
+      dockerfile: ./docker/db/Dockerfile
+    ports:
+      - 3306:3306
+    environment:
+      MYSQL_DATABASE: database
+      MYSQL_USER: user
+      MYSQL_PASSWORD: password
+      MYSQL_ROOT_PASSWORD: root
+      TZ: 'Asia/Tokyo'
+    volumes:
+      - mysql-volume:/var/lib/mysql
+
+volumes:
+  mysql-volume:
+
+# 手動でディレクトリを作成しなてもコンテナを立ち上げたらディレクトリが自動で作成されるのか？という検証
+# → 参照するDockerfileなどのパスに対応するディレクトリは手動で作る必要があるが、各々サービスに記載されているvolumesに定義されているホスト側のsrcはDockerコマンドを入力したら自動的にディレクトリが作成された。なぜ？
+# → 回答: srcディレクトリが自動的に作成されたのは、docker-compose up コマンドが実行された際に、ホスト側の ./src/ パスをコンテナ内の /app にマウントする設定があったため。Docker Composeでは、ホストのパスに指定されたディレクトリが存在しない場合、自動的に空のディレクトリとして生成されることがある。
+# これはDockerが「ボリュームをホストとコンテナ間でリンクする際に、ホスト上にそのディレクトリが存在しているべき」という仕様から来ており、指定のパスが存在しなければ生成することで、マウントのエラーを回避している。
