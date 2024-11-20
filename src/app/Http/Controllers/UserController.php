@@ -2,7 +2,9 @@
 // このファイルは、Laravelでデータベースにアクセスし、データを取得・追加・更新・削除するためのメソッドを定義するコントローラー。
 // コントローラーは、データベースとユーザーのやりとりを管理し、リクエストされた操作を実行する。 
 
-
+// namespace: 名前空間
+// Controllerがあるディレクトリを指定している
+// ↑によって同じ名前のクラスがあっても衝突を避けることができる
 namespace App\Http\Controllers;
 
 use App\Models\User; // Userモデルをインポート
@@ -72,4 +74,3 @@ class UserController extends Controller
         return response()->json(['message' => 'All users cleared successfully']);
     }
 }
-
